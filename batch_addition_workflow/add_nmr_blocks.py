@@ -56,6 +56,11 @@ def add_nmr_block(combination_map_dict):
 
     file_path = DATA_DIR + combination_map_dict["NMR_data_path"]
 
+    # Check file exists
+    if not os.path.exists(file_path):
+        logging.error("File does not exist: %s", file_path)
+        return
+
     zip_file_path = zip_file(file_path)
     file_id = upload_file(zip_file_path, item_id)
     # Remove the zip file
