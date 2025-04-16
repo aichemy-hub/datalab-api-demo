@@ -14,22 +14,6 @@ logging.basicConfig(
 client = DatalabClient("http://aichemy-datalab.ch.ic.ac.uk:5001")
 
 
-# File must be .zip before uploading so zip it
-def zip_file(file_path):
-    # Get the absolute path of the file
-    file_path = Path(file_path).expanduser().resolve()
-
-    # Create a zip file with the same name as the original file
-    zip_file_path = file_path.with_suffix(".zip")
-
-    # Zip the file
-    shutil.make_archive(
-        zip_file_path.with_suffix(""), "zip", str(file_path.parent), str(file_path.name)
-    )
-    logging.info("Zipped file: %s", zip_file_path)
-    return zip_file_path
-
-
 # Upload file
 def upload_file(file_path, item_id):
     # Get the absolute path of the file
@@ -44,9 +28,9 @@ def upload_file(file_path, item_id):
     return client_response["file_id"]
 
 
-def add_nmr_block(combination_map_dict):
+def add_turbidity_data_block(combination_map_dict):
     """
-    Add an NMR block to the Datalab with the given combination map dictionary.
+    Add an turbidity data block to the Datalab with the given combination map dictionary.
     """
     item_id = "{}_{}_{}".format(
         combination_map_dict["experiment_code"],
@@ -54,25 +38,27 @@ def add_nmr_block(combination_map_dict):
         combination_map_dict["formulation_number"],
     )
 
-    file_path = DATA_DIR + combination_map_dict["NMR_data_path"]
-
+    file_path = (
+        DATA_DIR
+        + combination_map_dict["turbidity_data_path"]
+        + "/"
+        + "turbidity_data.csv"
+    )
+    logging.info("file_path: %s", file_path)
     # Check file exists
     if not os.path.exists(file_path):
         logging.error("File does not exist: %s", file_path)
         return
 
-    zip_file_path = zip_file(file_path)
-    file_id = upload_file(zip_file_path, item_id)
-    # Remove the zip file
-    zip_file_path.unlink()
-    # Create the NMR block with the file
+    file_id = upload_file(file_path, item_id)
+
     block = client.create_data_block(
         item_id=item_id,
-        block_type="nmr",
+        block_type="tabular",
         file_ids=file_id,
         display=False,
     )
-    logging.info("NMR block created for item: %s", item_id)
+    logging.info("Turbidity data block created for item: %s", item_id)
 
 
 with open(
@@ -82,4 +68,4 @@ with open(
 
 for key, entry in combination_map_dict.items():
     # Add NMR block for each entry in the combination map dictionary
-    add_nmr_block(entry)
+    add_turbidity_data_block(entry)
