@@ -27,7 +27,7 @@ def upload_file(file_path, item_id):
     return client_response["file_id"]
 
 
-def add_turbidity_data_block(combination_map_dict):
+def add_turbidity_image_block(combination_map_dict):
     """
     Add an turbidity data block to the Datalab with the given combination map dictionary.
     """
@@ -41,7 +41,7 @@ def add_turbidity_data_block(combination_map_dict):
         DATA_DIR
         + combination_map_dict["turbidity_data_path"]
         + "/"
-        + "turbidity_data.csv"
+        + "vision_selection.png"
     )
     logging.info("file_path: %s", file_path)
     # Check file exists
@@ -53,11 +53,11 @@ def add_turbidity_data_block(combination_map_dict):
 
     block = client.create_data_block(
         item_id=item_id,
-        block_type="tabular",
+        block_type="media",
         file_ids=file_id,
         display=False,
     )
-    logging.info("Turbidity data block created for item: %s", item_id)
+    logging.info("Turbidity image media block created for item: %s", item_id)
 
 
 with open(
@@ -67,4 +67,4 @@ with open(
 
 for key, entry in combination_map_dict.items():
     # Add NMR block for each entry in the combination map dictionary
-    add_turbidity_data_block(entry)
+    add_turbidity_image_block(entry)
